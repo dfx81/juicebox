@@ -13,3 +13,4 @@ port = 8181
 [storage]
 downloads = "downloads"
 database = "data.db"
+archive = "cache.txt"

@@ -4,6 +4,14 @@
 
 A juicy jukebox program where users can collaborate on a shared mix.
 
+## dependencies
+
+- Python 3
+- yt-dlp
+- Flask
+- Waitress
+- ffmpeg
+
 ## usage
 
 1. Start the juicebox-server
