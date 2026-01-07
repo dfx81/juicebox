@@ -52,6 +52,8 @@ class ApiServer:
         def skip_song():
             success: bool = self._player.skip()
 
+            print(f"[i] Skipped current song")
+
             return {
                 "status": "OK",
                 "message": "Skipped" if success else "No more songs in queue"
@@ -68,6 +70,8 @@ class ApiServer:
                 with open(f"{self._config.storage.downloads}/{item.split(".")[0]}.json") as file:
                     data: dict = json.load(file)
                     queue.append(data)
+
+            print(f"[i] Queue requested")
 
             return {
                 "status": "OK",

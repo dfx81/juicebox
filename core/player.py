@@ -40,7 +40,7 @@ class Player:
                 self._playlist = self._instance.media_list_new()
                 self._player.set_media_list(self._playlist)
 
-            return err == -1
+            return True
         
         return False
     
