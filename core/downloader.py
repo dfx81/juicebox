@@ -67,7 +67,7 @@ class Downloader:
         self._urls = []
 
         for url in queue_urls:
-            id: str = url.split("?v=")[1]
+            id: str = url.split("?v=")[1] if "youtube.com" in url else url.split("youtu.be/")[1]
             file_name: str = f"{id}.m4a"
             file_path: str = os.path.join(self._path, file_name)
 
