@@ -36,6 +36,7 @@ class Player:
             err: int = self._player.next()
 
             if err == -1:
+                self._player.stop()
                 self._playlist = self._instance.media_list_new()
                 self._player.set_media_list(self._playlist)
 
