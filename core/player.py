@@ -11,9 +11,11 @@ class Player:
     def queue(self, file: str):
         media: vlc.Media = self._instance.media_new(file)
         
-        self._playlist.lock()
         if not self._player.is_playing():
             self._playlist = self._instance.media_list_new()
+            self._player.set_media_list(self._playlist)
+
+        self._playlist.lock()
         self._playlist.add_media(media)
         self._playlist.unlock()
 
@@ -35,6 +37,7 @@ class Player:
 
             if err == -1:
                 self._playlist = self._instance.media_list_new()
+                self._player.set_media_list(self._playlist)
 
             return err == -1
         
