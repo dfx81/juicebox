@@ -1,3 +1,4 @@
+import json
 from core.downloader import Downloader
 from flask import Flask, request
 from waitress import serve
@@ -5,6 +6,7 @@ from flask_httpauth import HTTPBasicAuth
 from threading import Thread
 
 from core.config import Config
+from core.player import Player
 from core.utils import get_app_version
 
 class ApiServer:
@@ -13,7 +15,8 @@ class ApiServer:
         self._setup()
 
     def _setup(self):
-        self._downloader = Downloader(config=self._config)
+        self._player: Player = Player()
+        self._downloader: Downloader = Downloader(config=self._config, player=self._player)
         self._auth = HTTPBasicAuth()
         self._app = Flask(self._config.server.name)
 
@@ -42,6 +45,33 @@ class ApiServer:
             return {
                 "status": "OK",
                 "message": "Queued"
+            }
+        
+        @self._app.post("/skip")
+        @self._auth.login_required
+        def skip_song():
+            success: bool = self._player.skip()
+
+            return {
+                "status": "OK",
+                "message": "Skipped" if success else "No more songs in queue"
+            }
+        
+        @self._app.get("/list")
+        @self._auth.login_required
+        def list_queue():
+            playlist: list[str] = self._player.get_queue()
+
+            queue: list[dict] = []
+
+            for item in playlist:
+                with open(f"{self._config.storage.downloads}/{item.split(".")[0]}.json") as file:
+                    data: dict = json.load(file)
+                    queue.append(data)
+
+            return {
+                "status": "OK",
+                "queue": queue
             }
         
     def _queue(self, url: str):

@@ -3,10 +3,12 @@ import json
 import yt_dlp
 
 from core.config import Config
+from core.player import Player
 
 class Downloader:
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, player: Player):
         self._config: Config = config
+        self._player: Player = player
         self._setup()
     
     def _setup(self):
@@ -26,10 +28,17 @@ class Downloader:
         if info["status"] == "finished":
             print(f"[i] Finished Downloading {info["info_dict"]["id"]}")
             with open(f"{self._path}/{info["info_dict"]["id"]}.json", "w", encoding="utf-8") as file:
-                json.dump(info["info_dict"], file, ensure_ascii=False, indent=4)
+                json.dump({
+                    "id": info["info_dict"]["id"],
+                    "title": info["info_dict"]["title"],
+                    "duration": info["info_dict"]["duration_string"],
+                    "channel": info["info_dict"]["channel"],
+                    "url": info["info_dict"]["original_url"]
+                }, file, ensure_ascii=False, indent=4)
 
-    def _post_hook(self, name: str):
-        print(f"[i] Finished Processing {name}")
+    def _post_hook(self, file_name: str):
+        print(f"[i] Queued {file_name}")
+        self._player.queue(file_name)
 
     def _check_exist(self, file: str):
         return os.path.isfile(file)
@@ -66,7 +75,7 @@ class Downloader:
                 print(f"[i] Queueing {id}")
                 dl_list.append(url)
             else:
-                print(f"[i] Skipping {id}")
+                self._post_hook(file_path)
 
         if not dl_list:
             return
