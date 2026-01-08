@@ -136,7 +136,7 @@ class Downloader:
         }
 
         if self._config.server.ffmpeg:
-            options["ffmpeg_location"] = self._config.server.ffmpeg
+            options["ffmpeg_location"] = self._config.server.ffmpeg,
 
         with yt_dlp.YoutubeDL(options) as dl: # type: ignore
             try:
@@ -144,6 +144,7 @@ class Downloader:
             except ExtractorError as err:
                 pass
             except DownloadError as err:
+                print(err)
                 id: str = str(err).split(" ")[2]
                 print(f"[!] Download Error. Skipping {id}")
 

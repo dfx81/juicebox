@@ -50,7 +50,7 @@ def start_api(config: Config):
 
 def check_ffmpeg(config: Config, out: TextIOWrapper) -> bool:
     try:
-        return subprocess.call([config.server.ffmpeg, "-version"], stdout=out) == 0
+        return subprocess.call([config.server.ffmpeg if config.server.ffmpeg else "ffmpeg", "-version"], stdout=out) == 0
     except Exception:
         return False
 
