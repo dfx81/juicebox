@@ -1,4 +1,6 @@
 import json
+
+from werkzeug.datastructures import Authorization
 from core.downloader import Downloader
 from flask import Flask, request
 from waitress import serve
@@ -21,8 +23,8 @@ class ApiServer:
         self._app = Flask(self._config.server.name)
 
         @self._auth.verify_password
-        def verify(username, password):
-            if self._config.security.password == password:
+        def verify(username: str, password: str):
+            if self._config.security.password == password and username != "":
                 return username
             
             return None
@@ -40,7 +42,12 @@ class ApiServer:
         def queue_song():
             url: str = request.args["url"]
 
-            Thread(target=self._queue, args=[url]).start()
+            creds: Authorization
+
+            if request.authorization:
+                creds = request.authorization
+
+            Thread(target=self._queue, args=[url, creds.parameters["username"]]).start()
             
             return {
                 "status": "OK",
@@ -52,7 +59,7 @@ class ApiServer:
         def skip_song():
             success: bool = self._player.skip()
 
-            print(f"[i] Skipped current song")
+            print(f"[i] {"Skipped current song" if success else "No songs in queue to skip"}")
 
             return {
                 "status": "OK",
@@ -62,13 +69,14 @@ class ApiServer:
         @self._app.get("/list")
         @self._auth.login_required
         def list_queue():
-            playlist: list[str] = self._player.get_queue()
+            playlist: list[dict] = self._player.get_queue()
 
             queue: list[dict] = []
 
             for item in playlist:
-                with open(f"{self._config.storage.downloads}/{item.split(".")[0]}.json") as file:
+                with open(f"{self._config.storage.downloads}/{item["path"].split(".")[0]}.json") as file:
                     data: dict = json.load(file)
+                    data["requestor"] = item["requestor"]
                     queue.append(data)
 
             print(f"[i] Queue requested")
@@ -78,7 +86,7 @@ class ApiServer:
                 "queue": queue
             }
         
-    def _queue(self, url: str):
+    def _queue(self, url: str, requestor: str):
         urls: list[str] = []
 
         if "playlist?list=" in url:
@@ -87,7 +95,7 @@ class ApiServer:
             urls = [url]
 
         for link in urls:
-            Thread(target=self._downloader.queue, args=[link]).start()
+            Thread(target=self._downloader.queue, args=[link, requestor]).start()
     
     def start(self):
         print("[i] API server listening on %s:%d" % (self._config.server.address, self._config.server.port))

@@ -1,7 +1,9 @@
 import os
 import json
+import threading
 import yt_dlp
 
+from yt_dlp.utils import DownloadError, ExtractorError
 from core.config import Config
 from core.player import Player
 
@@ -12,13 +14,22 @@ class Downloader:
         self._setup()
     
     def _setup(self):
+        self._lock: threading.Lock = threading.Lock()
         self._path: str = self._config.storage.downloads
         os.makedirs(self._path, exist_ok=True)
         self._urls: list[str] = []
+        self._requestors: list[dict] = []
         self._busy: bool = False
 
-    def queue(self, url: str):
+    def queue(self, url: str, requestor: str):
         self._urls.append(url)
+
+        id: str = self._get_id_from_url(url)
+
+        self._requestors.append({
+            "requestor": requestor,
+            "id": id
+        })
 
         if not self._busy:
             while self._urls:
@@ -37,8 +48,21 @@ class Downloader:
                 }, file, ensure_ascii=False, indent=4)
 
     def _post_hook(self, file_name: str):
+        self._lock.acquire()
         print(f"[i] Queued {file_name}")
-        self._player.queue(file_name)
+
+        id: str = file_name.split("/")[-1].split(".")[0]
+
+        info: dict[str, str] = {}
+
+        for requestor_info in self._requestors:
+            if requestor_info["id"] == id:
+                info = requestor_info
+                break
+
+        self._requestors.remove(info)
+        self._player.queue(file_name, info["requestor"])
+        self._lock.release()
 
     def _check_exist(self, file: str):
         return os.path.isfile(file)
@@ -52,13 +76,18 @@ class Downloader:
             "noprogress": True,
             "break_per_url": True,
             "logtostderr": True,
-            "ignoreerrors": True,
             "extract_flat": True,
         }) as dl:
-            for video in dl.extract_info(url, download=False)["entries"]: # type: ignore
-                urls.append(video["url"])
+            try:
+                for video in dl.extract_info(url, download=False)["entries"]: # type: ignore
+                    urls.append(video["url"])
+            except Exception as err:
+                pass
 
         return urls
+    
+    def _get_id_from_url(self, url: str) -> str:
+        return url.split("?v=")[1] if "youtube.com" in url else url.split("youtu.be/")[1]
 
     def _download(self):
         dl_list: list[str] = []
@@ -67,7 +96,7 @@ class Downloader:
         self._urls = []
 
         for url in queue_urls:
-            id: str = url.split("?v=")[1] if "youtube.com" in url else url.split("youtu.be/")[1]
+            id: str = self._get_id_from_url(url)
             file_name: str = f"{id}.m4a"
             file_path: str = os.path.join(self._path, file_name)
 
@@ -92,7 +121,6 @@ class Downloader:
                 "home": self._path,
             },
             "post_hooks": [self._post_hook],
-            "ignoreerrors": True,
             "outtmpl": f"%(id)s.%(ext)s",
             "progress_hooks": [self._download_progress],
             "quiet": True,
@@ -100,12 +128,34 @@ class Downloader:
             "noprogress": True,
             "download_archive": self._config.storage.archive,
             "break_on_existing": True,
+            # "ignoreerrors": True,
             "break_per_url": True,
             "logtostderr": True,
         }
 
         with yt_dlp.YoutubeDL(options) as dl: # type: ignore
-            dl.download(dl_list)
+            try:
+                dl.download(dl_list)
+            except ExtractorError as err:
+                pass
+            except DownloadError as err:
+                id: str = str(err).split(" ")[2]
+                print(f"[!] Download Error. Skipping {id}")
+
+                self._lock.acquire()
+
+                to_del: dict[str, str] = {}
+
+                for item in self._requestors:
+                    if item["id"] == id:
+                        to_del = item
+                        break
+
+                self._requestors.remove(to_del)
+
+                self._lock.release()
+            except Exception as err:
+                pass
 
         self._busy = False
 
