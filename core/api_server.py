@@ -79,7 +79,7 @@ class ApiServer:
             queue: list[dict] = []
 
             for item in playlist:
-                with open(f"{self._config.storage.downloads}/{item["path"].split(".")[0]}.json") as file:
+                with open(f"{self._config.storage.downloads}{os.sep}{item["path"].split(".")[0]}.json") as file:
                     data: dict = json.load(file)
                     data["requestor"] = item["requestor"]
                     queue.append(data)

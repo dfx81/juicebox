@@ -38,7 +38,7 @@ class Downloader:
     def _download_progress(self, info: dict):
         if info["status"] == "finished":
             print(f"[i] Finished Downloading {info["info_dict"]["id"]}")
-            with open(f"{self._path}/{info["info_dict"]["id"]}.json", "w", encoding="utf-8") as file:
+            with open(f"{self._path}{os.sep}{info["info_dict"]["id"]}.json", "w", encoding="utf-8") as file:
                 json.dump({
                     "id": info["info_dict"]["id"],
                     "title": info["info_dict"]["title"],
@@ -50,7 +50,7 @@ class Downloader:
     def _post_hook(self, file_name: str):
         print(f"[i] Queued {file_name}")
 
-        id: str = file_name.split("/")[-1].split(".")[0]
+        id: str = file_name.split(os.sep)[-1].split(".")[0]
 
         info: dict[str, str] = {}
 
@@ -60,7 +60,9 @@ class Downloader:
                 info = requestor_info
                 break
 
-        self._requestors.remove(info)
+        if info:
+            self._requestors.remove(info)
+        
         self._lock.release()
         self._player.queue(file_name, info["requestor"])
 
