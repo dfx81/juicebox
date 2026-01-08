@@ -19,6 +19,7 @@ class Player:
     def _media_changed(self, event: vlc.Event):
         player: vlc.MediaPlayer = self._player.get_media_player()
         current: vlc.Media = player.get_media()
+        player.release()
         idx: int = self._playlist.index_of_item(current)
 
         print(f"[i] Playing {current.get_mrl().split("/")[-1].split(".")[0]}. Requested by {self._requestors[idx]}")

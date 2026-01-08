@@ -48,21 +48,21 @@ class Downloader:
                 }, file, ensure_ascii=False, indent=4)
 
     def _post_hook(self, file_name: str):
-        self._lock.acquire()
         print(f"[i] Queued {file_name}")
 
         id: str = file_name.split("/")[-1].split(".")[0]
 
         info: dict[str, str] = {}
 
+        self._lock.acquire()
         for requestor_info in self._requestors:
             if requestor_info["id"] == id:
                 info = requestor_info
                 break
 
         self._requestors.remove(info)
-        self._player.queue(file_name, info["requestor"])
         self._lock.release()
+        self._player.queue(file_name, info["requestor"])
 
     def _check_exist(self, file: str):
         return os.path.isfile(file)
@@ -129,10 +129,12 @@ class Downloader:
             "download_archive": self._config.storage.archive,
             "break_on_existing": True,
             # "ignoreerrors": True,
-            "ffmpeg_location": self._config.server.ffmpeg,
             "break_per_url": True,
             "logtostderr": True,
         }
+
+        if self._config.server.ffmpeg:
+            options["ffmpeg_location"] = self._config.server.ffmpeg
 
         with yt_dlp.YoutubeDL(options) as dl: # type: ignore
             try:

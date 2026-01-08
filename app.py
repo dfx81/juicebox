@@ -4,7 +4,8 @@ from core.client import Client
 from core.config import Config
 from core.utils import get_app_version
 
-def start_cli(config: Config):
+def main():
+    config: Config = Config()
     client: Client = Client(config)
     
     print(f"Juicebox {get_app_version()}")
@@ -82,9 +83,7 @@ def get_input(prompt: str, hidden: bool = False, optional: bool = False) -> str:
 
 
 if __name__ == "__main__":
-    config: Config = Config()
-    
     try:
-        start_cli(config)
+        main()
     except KeyboardInterrupt:
         pass
