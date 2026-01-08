@@ -12,6 +12,7 @@ discovery_period = 5
 name = "Juicebox"
 address = "0.0.0.0"
 port = 8181
+ffmpeg_path = ""
 
 [storage]
 downloads = "downloads"

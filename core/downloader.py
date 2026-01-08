@@ -129,6 +129,7 @@ class Downloader:
             "download_archive": self._config.storage.archive,
             "break_on_existing": True,
             # "ignoreerrors": True,
+            "ffmpeg_location": self._config.server.ffmpeg,
             "break_per_url": True,
             "logtostderr": True,
         }

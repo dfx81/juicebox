@@ -12,7 +12,7 @@ class Config:
                 self.motd = data["motd"]
                 self.security = self._SecurityConfig(password=data["security"]["password"])
                 self.client = self._ClientConfig(period=data["client"]["discovery_period"])
-                self.server = self._ServerConfig(name=data["server"]["name"], address=data["server"]["address"], port=data["server"]["port"])
+                self.server = self._ServerConfig(name=data["server"]["name"], address=data["server"]["address"], port=data["server"]["port"], ffmpeg=data["server"]["ffmpeg_path"])
                 self.storage = self._StorageConfig(downloads=data["storage"]["downloads"], database=data["storage"]["database"], archive=data["storage"]["archive"])
         except Exception:
             raise RuntimeError("Bad Configuration")
@@ -26,10 +26,11 @@ class Config:
             self.discovery_period: int = period
     
     class _ServerConfig:
-        def __init__(self, name: str = "Juicebox", address: str = "0.0.0.0", port: int = 8181):
+        def __init__(self, name: str = "Juicebox", address: str = "0.0.0.0", port: int = 8181, ffmpeg: str = ""):
             self.name: str = name
             self.address: str = address
             self.port: int = port
+            self.ffmpeg: str = ffmpeg
         
     class _StorageConfig:
         def __init__(self, downloads: str = "downloads", database: str = "data.db", archive: str = "cache.txt"):
