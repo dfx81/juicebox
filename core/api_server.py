@@ -13,8 +13,11 @@ from core.utils import get_app_version
 
 class ApiServer:
     def __init__(self, config: Config):
-        self._config: Config = config
-        self._setup()
+        try:
+            self._config: Config = config
+            self._setup()
+        except NameError as err:
+            raise NameError("VLC not installed")
 
     def _setup(self):
         self._player: Player = Player()
@@ -30,6 +33,7 @@ class ApiServer:
             return None
 
         @self._app.get("/")
+        @self._auth.login_required
         def home():
             return {
                 "name": self._config.server.name,

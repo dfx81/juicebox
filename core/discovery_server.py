@@ -22,7 +22,7 @@ class DiscoveryServer:
             print("[<] Received payload from %s" % str(address))
             payload: Payload = Payload(packet.decode())
 
-            if (payload.request == RequestType.DISCOVER and payload.arguments == self.config.server.name):
+            if (payload.request == RequestType.DISCOVER and (payload.arguments == self.config.server.name or payload.arguments == "")):
                 message: str = "FOUND|%s" % self.config.server.name
                 print("[>] Replying to request from %s" % str(address))
                 self.socket.sendto(message.encode(), address)

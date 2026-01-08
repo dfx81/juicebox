@@ -3,3 +3,6 @@ __pycache__
 .venv
 downloads
 cache.txt
+build
+dist
+*.spec

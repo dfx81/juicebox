@@ -5,6 +5,9 @@ motd = "Welcome to Juicebox"
 [security]
 password = ""
 
+[client]
+discovery_period = 5
+
 [server]
 name = "Juicebox"
 address = "0.0.0.0"
