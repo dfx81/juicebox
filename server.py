@@ -61,4 +61,3 @@ if __name__ == "__main__":
         main()
     except ValueError as err:
         print(err)
-        exit(-1)
