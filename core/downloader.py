@@ -87,6 +87,7 @@ class Downloader:
             "break_per_url": True,
             "logtostderr": True,
             "extract_flat": True,
+            "ignoreerrors": True,
         }) as dl:
             try:
                 for video in dl.extract_info(url, download=False)["entries"]: # type: ignore
@@ -97,7 +98,7 @@ class Downloader:
         return urls
     
     def _get_id_from_url(self, url: str) -> str:
-        return url.split("?v=")[1] if "youtube.com" in url else url.split("youtu.be/")[1]
+        return url.split("?v=")[1].split("?")[0] if "youtube.com" in url else url.split("youtu.be/")[1]
 
     def _download(self):
         dl_list: list[str] = []
@@ -138,7 +139,7 @@ class Downloader:
             "noprogress": True,
             "download_archive": self._config.storage.archive,
             "break_on_existing": True,
-            # "ignoreerrors": True,
+            "ignoreerrors": True,
             "break_per_url": True,
             "logtostderr": True,
         }

@@ -15,18 +15,23 @@ class Player:
 
         self._playlist: vlc.MediaList = self._instance.media_list_new()
         self._player.set_media_list(self._playlist)
+        self._playing: bool = False
+        self._index: int = -1
         self._requestors: list[str] = []
+        self._songs: list[str] = []
 
         event_manager: vlc.EventManager = self._player.get_media_player().event_manager()
         event_manager.event_attach(vlc.EventType.MediaPlayerMediaChanged, self._media_changed) # type: ignore
 
     def _media_changed(self, event: vlc.Event):
+        self._playing = True
+        self._index = self._index + 1
+
         player: vlc.MediaPlayer = self._player.get_media_player()
         current: vlc.Media = player.get_media()
         player.release()
-        idx: int = self._playlist.index_of_item(current)
 
-        print(f"[i] Playing {current.get_mrl().split("/")[-1].split(".")[0]}. Requested by {self._requestors[idx]}")
+        print(f"[i] Playing {self._songs[self._index]} ({self._index} / {len(self._songs)}). Requested by {self._requestors[self._index]}")
 
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -38,34 +43,40 @@ class Player:
     def queue(self, file: str, requestor: str):
         media: vlc.Media = self._instance.media_new(file)
         
-        if not self._player.is_playing():
+        if not self._playing:
             self._requestors = []
+            self._index = -1
+            self._songs = []
             self._playlist = self._instance.media_list_new()
             self._player.set_media_list(self._playlist)
 
         self._playlist.lock()
         self._playlist.add_media(media)
         self._requestors.append(requestor)
+        self._songs.append(file)
         self._playlist.unlock()
 
-        if not self._player.is_playing():
+        if not self._playing:
             self._play()
 
     def _play(self):
-        if self._player.is_playing():
+        if self._playing:
             return
-
-        self._player.next()
+        
+        self._player.play()
 
     def _play_next(self):
-            self._player.next()
+        self._player.next()
     
     def skip(self) -> bool:
-        if self._player.is_playing():
+        if self._playing:
             err: int = self._player.next()
 
             if err == -1:
                 self._player.stop()
+                self._index = 0
+                self._playing = False
+                self._songs = []
                 self._playlist = self._instance.media_list_new()
                 self._requestors = []
                 self._player.set_media_list(self._playlist)
@@ -75,27 +86,21 @@ class Player:
         return False
     
     def get_queue(self) -> list[dict]:
-        player: vlc.MediaPlayer = self._player.get_media_player()
-        current: vlc.Media = player.get_media()
-
-        self._playlist.lock()
-        idx: int = self._playlist.index_of_item(current)
-        total: int = self._playlist.count()
-        self._playlist.unlock()
+        idx: int = self._index
+        total: int = len(self._songs)
 
         queue: list[dict] = []
+
+        print(f"{idx}/{total}")
 
         if idx < 0:
             return queue
 
         for i in range(idx, total):
-            self._playlist.lock()
-            media: vlc.Media = self._playlist.item_at_index(i)
-            self._playlist.unlock()
-            path: str = media.get_mrl()
+            path: str = self._songs[idx]
             queue.append({
                 "requestor": self._requestors[i],
-                "path": path.split("/")[-1]
+                "path": self._songs[i]
             })
 
         return queue
