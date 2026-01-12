@@ -35,15 +35,20 @@ class Client:
         return candidates
     
     def connect(self, name: str, password: str = "", address: tuple = ("127.0.0.1", 8181)) -> str:
-        self._address: tuple = address
-        self._name: str = name
-        self._password: str = password
+        try:
+            self._address: tuple = address
+            self._name: str = name
+            self._password: str = password
 
-        response: requests.Response = requests.get(f"http://{self._address[0]}:{self._address[1]}", auth=HTTPBasicAuth(self._name, self._password))
+            response: requests.Response = requests.get(f"http://{self._address[0]}:{self._address[1]}", auth=HTTPBasicAuth(self._name, self._password))
 
-        self._connected = response.ok
+            self._connected = response.ok
 
-        return response.json()["motd"] if self._connected else "Unauthorized"
+            return response.json()["motd"] if self._connected else "Unauthorized"
+        except Exception:
+            self._connected = False
+
+            return "Cannot connect to server"
 
     def disconnect(self) -> bool:
         self._address = tuple()
@@ -72,7 +77,7 @@ class Client:
 
     def get_playlist(self) -> list[dict]:
         current_queue: list[dict] = []
-        
+
         if self._connected:
             response: requests.Response = requests.get(f"http://{self._address[0]}:{self._address[1]}/list", auth=HTTPBasicAuth(self._name, self._password))
             current_queue = response.json()["queue"]
