@@ -7,7 +7,7 @@ password = ""
 
 [client]
 discovery_period = 5
-port = 8181
+port = 8182
 
 [server]
 name = "Juicebox"

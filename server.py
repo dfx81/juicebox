@@ -12,6 +12,8 @@ from core.discovery_server import DiscoveryServer
 def main():
     config: Config = Config()
 
+    multiprocessing.freeze_support()
+
     null_file: TextIOWrapper = open(os.devnull, "w")
     sys.stderr = null_file
 
@@ -50,7 +52,7 @@ def start_api(config: Config):
 
 def check_ffmpeg(config: Config, out: TextIOWrapper) -> bool:
     try:
-        return subprocess.call([os.path.join(config.server.ffmpeg, "ffmpeg") if config.server.ffmpeg else "ffmpeg", "-version"], stdout=out) == 0
+        return subprocess.call([os.path.join(config.server.ffmpeg, f"ffmpeg{".exe" if os.name == "nt" else ""}") if config.server.ffmpeg else "ffmpeg", "-version"], stdout=out) == 0
     except Exception:
         return False
 

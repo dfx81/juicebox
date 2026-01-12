@@ -14,7 +14,7 @@ class Config:
                 self.client = self._ClientConfig(period=data["client"]["discovery_period"], port=data["client"]["port"])
                 self.server = self._ServerConfig(name=data["server"]["name"], address=data["server"]["address"], port=data["server"]["port"], ffmpeg=data["server"]["ffmpeg_path"])
                 self.storage = self._StorageConfig(downloads=data["storage"]["downloads"], database=data["storage"]["database"], archive=data["storage"]["archive"])
-        except Exception:
+        except Exception as err:
             self.motd = "Welcome to Juicebox"
             self.security = self._SecurityConfig()
             self.client = self._ClientConfig()
@@ -26,7 +26,7 @@ class Config:
             self.password: str = password
 
     class _ClientConfig:
-        def __init__(self, period: int = 5, port: int = 8181):
+        def __init__(self, period: int = 5, port: int = 8182):
             self.discovery_period: int = period
             self.port: int = port
     
