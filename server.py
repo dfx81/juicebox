@@ -12,8 +12,6 @@ from core.discovery_server import DiscoveryServer
 def main():
     config: Config = Config()
 
-    multiprocessing.freeze_support()
-
     null_file: TextIOWrapper = open(os.devnull, "w")
     sys.stderr = null_file
 
