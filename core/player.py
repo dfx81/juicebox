@@ -1,8 +1,12 @@
+import socket
 import vlc
 from threading import Thread
 
+from core.config import Config
+
 class Player:
-    def __init__(self):
+    def __init__(self, config: Config):
+        self._config: Config = config
         self._setup()
 
     def _setup(self):
@@ -23,6 +27,13 @@ class Player:
         idx: int = self._playlist.index_of_item(current)
 
         print(f"[i] Playing {current.get_mrl().split("/")[-1].split(".")[0]}. Requested by {self._requestors[idx]}")
+
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+            sock.settimeout(1)
+
+            message: str = f"UPDATE|Queue updated"
+            sock.sendto(str.encode(message), ("255.255.255.255", self._config.client.port))
 
     def queue(self, file: str, requestor: str):
         media: vlc.Media = self._instance.media_new(file)

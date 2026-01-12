@@ -1,4 +1,5 @@
 import json
+import os
 
 from werkzeug.datastructures import Authorization
 from core.downloader import Downloader
@@ -21,7 +22,7 @@ class ApiServer:
             raise NameError("VLC not installed")
 
     def _setup(self):
-        self._player: Player = Player()
+        self._player: Player = Player(self._config)
         self._downloader: Downloader = Downloader(config=self._config, player=self._player)
         self._auth = HTTPBasicAuth()
         self._app = Flask(self._config.server.name)

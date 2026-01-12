@@ -7,12 +7,13 @@ password = ""
 
 [client]
 discovery_period = 5
+port = 8181
 
 [server]
 name = "Juicebox"
 address = "0.0.0.0"
 port = 8181
-ffmpeg_path = "ffmpeg" # On Windows, path to ffmpeg.exe
+ffmpeg_path = "" # On Windows, path to ffmpeg.exe
 
 [storage]
 downloads = "downloads"

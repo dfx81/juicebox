@@ -4,7 +4,6 @@ import requests
 from requests.auth import HTTPBasicAuth
 from core.config import Config
 
-
 class Client:
     def __init__(self, config: Config):
         self._config: Config = config
