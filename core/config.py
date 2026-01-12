@@ -35,10 +35,10 @@ class Config:
             self.name: str = name
             self.address: str = address
             self.port: int = port
-            self.ffmpeg: str = ffmpeg
+            self.ffmpeg: str = ffmpeg.replace("\\", "/")
         
     class _StorageConfig:
         def __init__(self, downloads: str = "downloads", database: str = "data.db", archive: str = "cache.txt"):
-            self.downloads: str = downloads
-            self.database: str = database
-            self.archive: str = archive
+            self.downloads: str = downloads.replace("\\", "/")
+            self.database: str = database.replace("\\", "/")
+            self.archive: str = archive.replace("\\", "/")
