@@ -14,7 +14,9 @@ class Config:
                 self.client = self._ClientConfig(period=data["client"]["discovery_period"], port=data["client"]["port"])
                 self.server = self._ServerConfig(name=data["server"]["name"], address=data["server"]["address"], port=data["server"]["port"], ffmpeg=data["server"]["ffmpeg_path"])
                 self.storage = self._StorageConfig(downloads=data["storage"]["downloads"], database=data["storage"]["database"], archive=data["storage"]["archive"])
-        except Exception as err:
+        except tomllib.TOMLDecodeError:
+            raise ValueError(r"[!] Please use '/' or '\\' as path separator")
+        except Exception:
             self.motd = "Welcome to Juicebox"
             self.security = self._SecurityConfig()
             self.client = self._ClientConfig()
@@ -35,10 +37,10 @@ class Config:
             self.name: str = name
             self.address: str = address
             self.port: int = port
-            self.ffmpeg: str = ffmpeg.replace("\\", "/")
+            self.ffmpeg: str = ffmpeg
         
     class _StorageConfig:
         def __init__(self, downloads: str = "downloads", database: str = "data.db", archive: str = "cache.txt"):
-            self.downloads: str = downloads.replace("\\", "/")
-            self.database: str = database.replace("\\", "/")
-            self.archive: str = archive.replace("\\", "/")
+            self.downloads: str = downloads
+            self.database: str = database
+            self.archive: str = archive

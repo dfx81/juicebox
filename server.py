@@ -57,4 +57,8 @@ def check_ffmpeg(config: Config, out: TextIOWrapper) -> bool:
         return False
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except ValueError as err:
+        print(err)
+        exit(-1)
