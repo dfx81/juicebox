@@ -165,7 +165,8 @@ class Downloader:
                         to_del = item
                         break
 
-                self._requestors.remove(to_del)
+                if to_del:
+                    self._requestors.remove(to_del)
 
                 self._lock.release()
             except Exception as err:

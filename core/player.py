@@ -78,8 +78,8 @@ class Player:
         player: vlc.MediaPlayer = self._player.get_media_player()
         current: vlc.Media = player.get_media()
 
-        idx: int = self._playlist.index_of_item(current)
         self._playlist.lock()
+        idx: int = self._playlist.index_of_item(current)
         total: int = self._playlist.count()
         self._playlist.unlock()
 
