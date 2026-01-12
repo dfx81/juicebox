@@ -144,7 +144,7 @@ class Downloader:
         }
 
         if self._config.server.ffmpeg:
-            options["ffmpeg_location"] = self._config.server.ffmpeg,
+            options["ffmpeg_location"] = self._config.server.ffmpeg
 
         with yt_dlp.YoutubeDL(options) as dl: # type: ignore
             try:

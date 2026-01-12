@@ -21,6 +21,8 @@ def main():
         
         vlc.libvlc_get_version()
 
+        multiprocessing.freeze_support()
+
         discovery_process: multiprocessing.Process = multiprocessing.Process(target=start_discovery, args=(config, ))
         api_process: multiprocessing.Process = multiprocessing.Process(target=start_api, args=(config, ))
 
