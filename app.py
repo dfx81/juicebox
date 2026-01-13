@@ -30,6 +30,9 @@ def main():
             case "/connect":
                 parts: list[str] = command.split(" ")
 
+                if len(parts) == 1:
+                    parts = ["/connect", "127.0.0.1", "8181"]
+
                 if len(parts) != 3:
                     print("Please pass the address and port of the server")
                 else:
@@ -52,7 +55,9 @@ def main():
             case "/list":
                 playlist: list[dict] = client.get_playlist()
 
-                if playlist:
+                print(playlist)
+
+                if not playlist:
                     print("Nothing in queue")
                 else:
                     for song in playlist:
