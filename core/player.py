@@ -22,6 +22,7 @@ class Player:
 
         event_manager: vlc.EventManager = self._player.get_media_player().event_manager()
         event_manager.event_attach(vlc.EventType.MediaPlayerMediaChanged, self._media_changed) # type: ignore
+        event_manager.event_attach(vlc.EventType.MediaPlayerEndReached, self._play_end) # type: ignore
 
     def _media_changed(self, event: vlc.Event):
         self._playing = True
@@ -31,7 +32,7 @@ class Player:
         current: vlc.Media = player.get_media()
         player.release()
 
-        print(f"[i] Playing {self._songs[self._index]} ({self._index} / {len(self._songs)}). Requested by {self._requestors[self._index]}")
+        print(f"[i] Playing {self._songs[self._index]} ({self._index + 1} / {len(self._songs)}). Requested by {self._requestors[self._index]}")
 
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -39,6 +40,17 @@ class Player:
 
             message: str = f"UPDATE|Queue updated"
             sock.sendto(str.encode(message), ("255.255.255.255", self._config.client.port))
+
+    def _play_end(self, event: vlc.Event):
+        if self._index == len(self._songs):
+            print("[i] Playlist ended")
+
+            self._playing = False
+            self._requestors = []
+            self._index = -1
+            self._songs = []
+            self._playlist = self._instance.media_list_new()
+            self._player.set_media_list(self._playlist)
 
     def queue(self, file: str, requestor: str):
         media: vlc.Media = self._instance.media_new(file)
@@ -91,7 +103,7 @@ class Player:
 
         queue: list[dict] = []
 
-        print(f"[i] Queue Info: {idx}/{total}")
+        print(f"[i] Queue Info: {idx + 1}/{total}")
 
         if idx < 0:
             return queue

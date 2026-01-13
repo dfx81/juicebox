@@ -13,7 +13,7 @@ def main():
     config: Config = Config()
 
     null_file: TextIOWrapper = open(os.devnull, "w")
-    # sys.stderr = null_file
+    sys.stderr = null_file
 
     try:
         if not check_ffmpeg(config, out=null_file):
