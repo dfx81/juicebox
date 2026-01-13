@@ -97,7 +97,7 @@ class Player:
         if self._playing:
             err: int = self._player.next()
 
-            """
+            
             if err == -1:
                 self._player.stop()
                 self._index = 0
@@ -106,10 +106,8 @@ class Player:
                 self._playlist = self._instance.media_list_new()
                 self._requestors = []
                 self._player.set_media_list(self._playlist)
-            """
 
-            return err != -1
-            # return True
+            return True
         
         return False
     
