@@ -42,7 +42,9 @@ class Player:
             sock.sendto(str.encode(message), ("255.255.255.255", self._config.client.port))
 
     def _play_end(self, event: vlc.Event):
-        if self._index == len(self._songs):
+        print(f"[i] Song ended ({self._index + 1}/{len(self._songs)})")
+        
+        if self._index + 1 >= len(self._songs):
             print("[i] Playlist ended")
 
             self._playing = False
