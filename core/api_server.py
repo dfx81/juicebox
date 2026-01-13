@@ -72,6 +72,18 @@ class ApiServer:
                 "message": "Skipped" if success else "No more songs in queue"
             }
         
+        @self._app.post("/pause")
+        @self._auth.login_required
+        def pause_song():
+            paused: bool = self._player.pause()
+
+            print(f"[i] {"Paused current song" if paused else "Unpaused current song"}")
+
+            return {
+                "status": "OK",
+                "message": "Paused current song" if paused else "Unpaused current song"
+            }
+        
         @self._app.get("/list")
         @self._auth.login_required
         def list_queue():

@@ -52,6 +52,8 @@ def main():
                     print(client.queue(parts[1]))
             case "/skip":
                 print(client.skip())
+            case "/pause":
+                print(client.pause())
             case "/list":
                 playlist: list[dict] = client.get_playlist()
 
@@ -68,6 +70,7 @@ def main():
                 print("- /connect <address> <port> : Connect to a Juicebox server")
                 print("- /disconnect : Disconnect from Juicebox server")
                 print("- /queue <url> : Queue a song/playlist from Youtube")
+                print("- /pause : Pause/continue current song")
                 print("- /skip : Skip current song")
                 print("- /list : List songs in queue")
                 print("- /exit : Exit the client")

@@ -19,6 +19,7 @@ class Player:
         self._index: int = -1
         self._requestors: list[str] = []
         self._songs: list[str] = []
+        self._paused: bool = False
 
         event_manager: vlc.EventManager = self._player.get_media_player().event_manager()
         event_manager.event_attach(vlc.EventType.MediaPlayerMediaChanged, self._media_changed) # type: ignore
@@ -43,7 +44,7 @@ class Player:
 
     def _play_end(self, event: vlc.Event):
         print(f"[i] Song ended ({self._index + 1}/{len(self._songs)})")
-        
+
         if self._index + 1 >= len(self._songs):
             print("[i] Playlist ended")
 
@@ -81,11 +82,22 @@ class Player:
 
     def _play_next(self):
         self._player.next()
+
+    def pause(self) -> bool:
+        if not self._paused:
+            self._player.pause()
+            self._paused = True
+        else:
+            self._player.play()
+            self._paused = False
+
+        return self._paused
     
     def skip(self) -> bool:
         if self._playing:
             err: int = self._player.next()
 
+            """
             if err == -1:
                 self._player.stop()
                 self._index = 0
@@ -94,8 +106,10 @@ class Player:
                 self._playlist = self._instance.media_list_new()
                 self._requestors = []
                 self._player.set_media_list(self._playlist)
+            """
 
-            return True
+            return err != -1
+            # return True
         
         return False
     

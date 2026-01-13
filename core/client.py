@@ -74,6 +74,14 @@ class Client:
             return res.json()["message"]
         
         return "Not connected to any Juicebox server."
+    
+    def pause(self) -> str:
+        if self._connected:
+            res: requests.Response = requests.post(f"http://{self._address[0]}:{self._address[1]}/pause", auth=HTTPBasicAuth(self._name, self._password))
+
+            return res.json()["message"]
+        
+        return "Not connected to any Juicebox server."
 
     def get_playlist(self) -> list[dict]:
         current_queue: list[dict] = []
