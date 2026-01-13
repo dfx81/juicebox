@@ -9,8 +9,11 @@ def main():
     client: Client = Client(config)
     
     print(f"Juicebox {get_app_version()}")
+    print("Type /help for help")
 
     running: bool = True
+
+    candidates: list[tuple] = []
 
     while running:
         command: str = input("> ")
@@ -20,18 +23,30 @@ def main():
                 parts: list[str] = command.split(" ")
                 target: str = "" if len(parts) == 1 else parts[1]
                 
-                candidates: list[tuple] = client.find(target)
+                candidates = client.find(target)
 
                 if not candidates:
                     print("No available servers")
                 else:
+                    idx: int = 0
+
                     for (address, port) in candidates:
-                        print(f"- {address} : {port}")
+                        print(f"[{idx + 1}] - {address} : {port}")
+                        idx += 1
             case "/connect":
                 parts: list[str] = command.split(" ")
 
                 if len(parts) == 1:
                     parts = ["/connect", "127.0.0.1", "8181"]
+
+                if len(parts) == 2:
+                    try:
+                        parts = ["/connect", candidates[int(parts[1])][0], candidates[int(parts[1])][1]]
+                    except Exception:
+                        parts = []
+
+                if len(parts) == 4 and parts[2] == ":":
+                    parts = ["/connect", parts[1], parts[3]]
 
                 if len(parts) != 3:
                     print("Please pass the address and port of the server")
@@ -64,7 +79,7 @@ def main():
                         print(f"- {song["duration"]} : {song["title"]}\n\t Channel/Artist: {song["channel"]}\n\t Requestor: {song["requestor"]}")
             case "/exit":
                 running = False
-            case _:
+            case "/help":
                 print("Commands:")
                 print("- /find <server-name (optional)> : Find available Juicebox server")
                 print("- /connect <address> <port> : Connect to a Juicebox server")
@@ -74,6 +89,8 @@ def main():
                 print("- /skip : Skip current song")
                 print("- /list : List songs in queue")
                 print("- /exit : Exit the client")
+            case _:
+                print("Unknown command. Type /help for help")
 
 def get_input(prompt: str, hidden: bool = False, optional: bool = False) -> str:
     while True:
