@@ -39,7 +39,7 @@ def main():
                 if len(parts) == 1:
                     parts = ["/connect", "127.0.0.1", "8181"]
 
-                if len(parts) == 2:
+                if len(parts) == 2 and candidates:
                     try:
                         parts = ["/connect", candidates[int(parts[1]) - 1][0], candidates[int(parts[1]) - 1][1]]
                     except Exception:
