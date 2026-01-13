@@ -84,6 +84,9 @@ class Player:
         self._player.next()
 
     def pause(self) -> bool:
+        if not self._playing:
+            return self._paused
+
         if not self._paused:
             self._player.pause()
             self._paused = True
@@ -97,7 +100,8 @@ class Player:
         if self._playing:
             err: int = self._player.next()
 
-            
+            self._paused = False
+
             if err == -1:
                 self._player.stop()
                 self._index = 0
