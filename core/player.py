@@ -91,7 +91,7 @@ class Player:
 
         queue: list[dict] = []
 
-        print(f"{idx}/{total}")
+        print(f"[i] Queue Info: {idx}/{total}")
 
         if idx < 0:
             return queue

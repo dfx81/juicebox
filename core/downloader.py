@@ -137,8 +137,9 @@ class Downloader:
             "quiet": True,
             "no_warnings": True,
             "noprogress": True,
-            "download_archive": self._config.storage.archive,
-            "break_on_existing": True,
+            # "download_archive": self._config.storage.archive,
+            "break_on_existing": False,
+            # "overwrites": True,
             "ignoreerrors": True,
             "break_per_url": True,
             "logtostderr": True,
@@ -175,13 +176,6 @@ class Downloader:
 
         self._busy = False
 
-        print(f"[i] Downloads Finished")
-
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
-            sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-            sock.settimeout(1)
-
-            message: str = f"UPDATE|Queue updated"
-            sock.sendto(str.encode(message), ("255.255.255.255", self._config.client.port))
+        print(f"[i] Finished Queueing Downloads")
 
         return

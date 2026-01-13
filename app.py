@@ -55,13 +55,11 @@ def main():
             case "/list":
                 playlist: list[dict] = client.get_playlist()
 
-                print(playlist)
-
                 if not playlist:
                     print("Nothing in queue")
                 else:
                     for song in playlist:
-                        print(f"- {song["duration"]} : {song["title"]} | Requested by {song["requestor"]}")
+                        print(f"- {song["duration"]} : {song["title"]}\n\t Channel/Artist: {song["channel"]}\n\t Requestor: {song["requestor"]}")
             case "/exit":
                 running = False
             case _:
