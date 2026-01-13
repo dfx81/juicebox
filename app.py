@@ -41,7 +41,7 @@ def main():
 
                 if len(parts) == 2:
                     try:
-                        parts = ["/connect", candidates[int(parts[1])][0], candidates[int(parts[1])][1]]
+                        parts = ["/connect", candidates[int(parts[1]) - 1][0], candidates[int(parts[1]) - 1][1]]
                     except Exception:
                         parts = []
 
