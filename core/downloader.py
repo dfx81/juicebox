@@ -98,7 +98,7 @@ class Downloader:
         return urls
     
     def _get_id_from_url(self, url: str) -> str:
-        return url.split("?v=")[1].split("?")[0] if "youtube.com" in url else url.split("youtu.be/")[1]
+        return url.split("?v=")[1].split("?")[0] if "youtube.com" in url else url.split("youtu.be/")[1].split("?")[0]
 
     def _download(self):
         dl_list: list[str] = []
